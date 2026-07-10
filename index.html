@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#26143f" />
+  <meta name="description" content="몽실이와 함께 꿈채소를 모으는 몽환적인 횡스크롤 플랫폼 웹게임" />
+  <meta name="author" content="devcsb" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:title" content="몽실이의 꿈채소 원정대" />
+  <meta property="og:description" content="상추와 배추를 모으며 몽환적인 세계를 탐험하는 귀여운 달팽이 횡스크롤 게임" />
+  <meta property="og:url" content="https://devcsb.github.io/mongsil-dream-veggie-game/" />
+  <meta property="og:image" content="https://devcsb.github.io/mongsil-dream-veggie-game/assets/social-preview.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://devcsb.github.io/mongsil-dream-veggie-game/" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>몽실이의 꿈채소 원정대</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page-wrap">
+    <section id="game-shell" aria-label="몽실이의 꿈채소 원정대 게임">
+      <canvas id="game" width="1280" height="720" aria-label="횡스크롤 플랫폼 게임 화면"></canvas>
+      <div class="glass-shine" aria-hidden="true"></div>
+
+      <div id="hud" class="hud" aria-hidden="true">
+        <div class="hud-cluster">
+          <div class="hud-pill hearts" aria-label="남은 하트">
+            <span class="hud-kicker">LIFE</span><span id="hearts-text">♥ ♥ ♥ ♥</span>
+          </div>
+          <div class="hud-pill">
+            <span class="hud-icon veggie-mini" aria-hidden="true">🥬</span>
+            <span id="veggie-text">0 / 18</span>
+          </div>
+          <div class="hud-pill score-pill">
+            <span class="hud-kicker">SCORE</span>
+            <span id="score-text">000000</span>
+          </div>
+        </div>
+        <div class="hud-center">
+          <div id="stage-name" class="stage-name">라일락 이슬숲</div>
+          <div class="progress-track" aria-label="스테이지 진행도">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="hud-cluster hud-right">
+          <button id="sound-button" class="icon-button" type="button" aria-label="소리 끄기" title="소리 켜기/끄기">♪</button>
+          <button id="pause-button" class="icon-button" type="button" aria-label="일시정지" title="일시정지">Ⅱ</button>
+        </div>
+      </div>
+
+      <div id="start-screen" class="screen is-visible">
+        <div class="start-card">
+          <div class="character-showcase" aria-hidden="true">
+            <div class="character-orbit orbit-one"></div>
+            <div class="character-orbit orbit-two"></div>
+            <div class="character-glow"></div>
+            <img src="assets/snail.png" alt="" class="hero-snail" draggable="false" />
+            <span class="floating-sparkle sparkle-a">✦</span>
+            <span class="floating-sparkle sparkle-b">✧</span>
+            <span class="floating-sparkle sparkle-c">✦</span>
+          </div>
+          <div class="start-copy">
+            <p class="eyebrow">DREAMY SIDE-SCROLL ADVENTURE</p>
+            <h1><span>몽실이의</span><br />꿈채소 원정대</h1>
+            <p class="intro">달빛 정원으로 가는 길에 흩어진 상추와 배추를 모아 주세요. 반짝 수정과 잠꾸러기 버섯을 피해 꿈문을 열면 모험 성공!</p>
+            <div class="control-grid">
+              <div class="control-item"><span class="keycap">A D</span><span>좌우 이동</span></div>
+              <div class="control-item"><span class="keycap">SPACE</span><span>점프</span></div>
+              <div class="control-item"><span class="keycap">P</span><span>잠시 쉬기</span></div>
+            </div>
+            <button id="start-button" class="primary-button" type="button">
+              <span>꿈속으로 출발</span><span class="button-arrow">→</span>
+            </button>
+            <p class="tiny-note">키보드와 터치 조작을 모두 지원해요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="pause-screen" class="screen compact-screen" aria-hidden="true">
+        <div class="modal-card">
+          <div class="modal-icon">☾</div>
+          <p class="eyebrow">PAUSED</p>
+          <h2>잠깐, 꿈을 고르는 중…</h2>
+          <p>준비되면 다시 달빛 길을 걸어가요.</p>
+          <button id="resume-button" class="primary-button" type="button"><span>계속 탐험하기</span><span>→</span></button>
+        </div>
+      </div>
+
+      <div id="result-screen" class="screen compact-screen" aria-hidden="true">
+        <div class="modal-card result-card">
+          <div id="result-icon" class="modal-icon">✦</div>
+          <p id="result-kicker" class="eyebrow">DREAM COMPLETE</p>
+          <h2 id="result-title">달빛 정원 도착!</h2>
+          <p id="result-message">몽실이가 꿈채소를 품에 안고 무사히 도착했어요.</p>
+          <div class="result-stats">
+            <div><span>모은 채소</span><strong id="result-veggies">0</strong></div>
+            <div><span>점수</span><strong id="result-score">0</strong></div>
+            <div><span>최고 기록</span><strong id="best-score">0</strong></div>
+          </div>
+          <button id="restart-button" class="primary-button" type="button"><span>다시 꿈꾸기</span><span>↻</span></button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast" aria-live="polite"></div>
+
+      <div id="mobile-controls" class="mobile-controls" aria-label="터치 조작">
+        <div class="move-pad">
+          <button id="left-button" class="touch-button" type="button" aria-label="왼쪽으로 이동">←</button>
+          <button id="right-button" class="touch-button" type="button" aria-label="오른쪽으로 이동">→</button>
+        </div>
+        <button id="jump-button" class="touch-button jump-button" type="button" aria-label="점프">↑<span>JUMP</span></button>
+      </div>
+    </section>
+    <p class="outside-tip">이동 <kbd>A</kbd><kbd>D</kbd> 또는 <kbd>←</kbd><kbd>→</kbd> · 점프 <kbd>Space</kbd> · 일시정지 <kbd>P</kbd></p>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>

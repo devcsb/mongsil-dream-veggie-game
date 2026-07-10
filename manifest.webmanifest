@@ -1,0 +1,15 @@
+{
+  "name": "몽실이의 꿈채소 원정대",
+  "short_name": "꿈채소 원정대",
+  "description": "몽실이와 함께 꿈채소를 모으는 몽환적인 횡스크롤 플랫폼 게임",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#160b2c",
+  "theme_color": "#7c5ce7",
+  "icons": [
+    {"src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
