@@ -1,0 +1,10 @@
+{
+  "name": "mongsil-dream-veggie-game",
+  "private": true,
+  "description": "몽실이의 꿈채소 원정대 — dreamy side-scroll web game",
+  "scripts": {
+    "test": "node tests/physics.test.js && node tests/stages.test.js && node tests/game-static.test.js",
+    "test:physics": "node tests/physics.test.js",
+    "test:stages": "node tests/stages.test.js"
+  }
+}

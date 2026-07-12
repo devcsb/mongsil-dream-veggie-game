@@ -380,6 +380,36 @@ kbd {
 .result-stats span { color: rgba(255,255,255,.54); font-size: 11px; }
 .result-stats strong { font-size: clamp(17px, 2.1vw, 25px); font-variant-numeric: tabular-nums; }
 
+.result-pobi {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 4px auto 14px;
+}
+.result-pobi.is-visible { display: flex; }
+.pobi-portrait {
+  width: min(148px, 38vw);
+  height: min(148px, 38vw);
+  object-fit: cover;
+  border-radius: 28px;
+  border: 2px solid rgba(255, 210, 240, .55);
+  box-shadow: 0 12px 32px rgba(40, 10, 60, .45), 0 0 28px rgba(255, 170, 220, .35);
+  background: rgba(255,255,255,.08);
+}
+.pobi-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  color: #fff;
+  background: linear-gradient(120deg, rgba(180, 120, 220, .85), rgba(255, 150, 200, .8));
+  border: 1px solid rgba(255,255,255,.28);
+  box-shadow: 0 6px 16px rgba(0,0,0,.22);
+}
+
 .toast {
   position: absolute;
   z-index: 15;
