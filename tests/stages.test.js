@@ -88,6 +88,26 @@ const finalBuilt = finalStageObj.build();
 const keyCount = finalBuilt.collectibles.filter((c) => c.type === 'key').length;
 assert(keyCount === 1, 'final stage has exactly one key collectible', `keys=${keyCount}`);
 
+// Finale shrine structure: key → cage → portal, no overlaps, key clear of hazards
+const finalKey = finalBuilt.collectibles.find((c) => c.type === 'key');
+const finalCage = (finalBuilt.specials || []).find((s) => s.type === 'pobi_cage');
+const finalPortal = finalStageObj.portal;
+assert(finalKey && finalCage && finalPortal, 'final shrine has key, cage, portal');
+assert(finalKey.x < finalCage.x, 'key is before cage', `key=${finalKey.x} cage=${finalCage.x}`);
+assert(
+  finalCage.x + finalCage.w < finalPortal.x,
+  'cage does not overlap portal',
+  `cageEnd=${finalCage.x + finalCage.w} portal=${finalPortal.x}`
+);
+const keyHazardClash = finalBuilt.hazards.some((h) => {
+  const hx0 = h.x;
+  const hx1 = h.x + h.w;
+  return !(finalKey.x + 40 < hx0 || finalKey.x - 40 > hx1);
+});
+assert(!keyHazardClash, 'key is clear of hazard AABBs (±40px)', `keyX=${finalKey.x}`);
+const aerialVeg = finalBuilt.collectibles.filter((c) => c.type !== 'key' && c.y < 500).length;
+assert(aerialVeg >= 3, 'final stage has aerial veggies for high path', `aerial=${aerialVeg}`);
+
 // pobi_cage must be only on final stage
 for (let i = 0; i < stages.length - 1; i++) {
   assert(!stages[i].specialTypes.includes('pobi_cage'), `stage ${i + 1} has no pobi_cage (only final)`);

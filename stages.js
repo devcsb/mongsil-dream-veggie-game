@@ -11,6 +11,85 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
+  /** Deterministic 0..1 RNG so decor layout is stable across reloads. */
+  function seededRnd(seed) {
+    let s = seed >>> 0;
+    return function next() {
+      s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+
+  /**
+   * Concept-specific ground + island micro-decor (visual only, no collision).
+   * Makes aerial platforms and stage identity read clearly instead of empty pastel slabs.
+   */
+  function scatterConceptDecor(platforms, decor, concept, seed) {
+    const rnd = seededRnd(seed);
+    const pick = (arr) => arr[Math.floor(rnd() * arr.length) % arr.length];
+
+    const groundTypes = {
+      forest: ['tree', 'flower', 'mushroom', 'bush', 'sprout'],
+      clouds: ['puff', 'crystal_shard', 'flower', 'sprout'],
+      garden_challenge: ['bush', 'flower', 'mushroom', 'lantern', 'sprout'],
+      factory: ['pipe', 'candy_stack', 'gear', 'sprout'],
+      summit_finale: ['star_pillar', 'crystal_shard', 'nebula_bloom', 'lantern', 'sprout']
+    };
+    const islandTypes = {
+      forest: ['flower', 'sprout', 'mushroom'],
+      clouds: ['puff', 'crystal_shard', 'flower'],
+      garden_challenge: ['flower', 'sprout', 'bush'],
+      factory: ['candy_stack', 'gear', 'sprout'],
+      summit_finale: ['crystal_shard', 'nebula_bloom', 'sprout']
+    };
+    const gTypes = groundTypes[concept] || groundTypes.forest;
+    const iTypes = islandTypes[concept] || islandTypes.forest;
+
+    const grounds = platforms.filter((p) => p.kind === 'ground');
+    for (const g of grounds) {
+      const stepBase = concept === 'factory' ? 150 : concept === 'summit_finale' ? 130 : 110;
+      for (let x = g.x + 48; x < g.x + g.w - 48; x += stepBase + rnd() * 100) {
+        const type = pick(gTypes);
+        const tall = type === 'tree' || type === 'star_pillar' || type === 'pipe';
+        decor.push({
+          type,
+          x: x + (rnd() - 0.5) * 24,
+          y: g.y,
+          s: tall ? 0.75 + rnd() * 0.85 : 0.45 + rnd() * 0.7,
+          hue: rnd(),
+          phase: rnd() * 6
+        });
+      }
+    }
+
+    for (const p of platforms) {
+      if (p.kind === 'ground' || p.kind === 'moving') continue;
+      // bounce/fall get a tiny visual marker only (non-blocking)
+      if (p.kind === 'bouncepad' || p.kind === 'fallblock') {
+        if (rnd() > 0.55) continue;
+        decor.push({
+          type: p.kind === 'bouncepad' ? 'sprout' : 'gear',
+          x: p.x + p.w * 0.5,
+          y: p.y,
+          s: 0.32 + rnd() * 0.2,
+          hue: rnd(),
+          phase: rnd() * 6
+        });
+        continue;
+      }
+      if (p.w < 90 || rnd() > 0.48) continue;
+      const type = pick(iTypes);
+      decor.push({
+        type,
+        x: p.x + p.w * (0.28 + rnd() * 0.44),
+        y: p.y,
+        s: 0.38 + rnd() * 0.4,
+        hue: rnd(),
+        phase: rnd() * 6
+      });
+    }
+  }
+
   /**
    * Stage catalog.
    * uniqueElements: entity/feature types introduced at this stage (not in earlier stages).
@@ -93,13 +172,12 @@
         enemy(2000, 550, 1880, 2360, 58);
         enemy(3200, 550, 3080, 3520, 60);
 
-        for (let x = 240; x < 4900; x += 320 + Math.random() * 160) {
-          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
-          decor.push({
-            type: Math.random() < 0.55 ? 'flower' : Math.random() < 0.7 ? 'mushroom' : 'sprout',
-            x, y: 600, s: 0.55 + Math.random() * 0.85, hue: Math.random(), phase: Math.random() * 6
-          });
-        }
+        scatterConceptDecor(platforms, decor, 'forest', 11001);
+        // Landmark trees bookend the first gap so the pit reads as a forest ravine
+        decor.push(
+          { type: 'tree', x: 1450, y: 600, s: 1.35, hue: 0.2, phase: 1.1 },
+          { type: 'tree', x: 1760, y: 600, s: 1.2, hue: 0.65, phase: 2.4 }
+        );
 
         return { platforms, hazards, collectibles, enemies, decor };
       }
@@ -200,13 +278,13 @@
         enemy(3800, 550, 3680, 4200, 74, 'sleep_cloud');
         enemy(4900, 550, 4800, 5300, 78, 'sleep_cloud');
 
-        for (let x = 200; x < 5500; x += 280 + Math.random() * 140) {
-          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
-          decor.push({
-            type: Math.random() < 0.4 ? 'flower' : 'sprout',
-            x, y: 600, s: 0.5 + Math.random() * 0.7, hue: Math.random(), phase: Math.random() * 6
-          });
-        }
+        scatterConceptDecor(platforms, decor, 'clouds', 22002);
+        // Crystal spires mark wind corridor entrances for spatial reading
+        decor.push(
+          { type: 'crystal_shard', x: 880, y: 600, s: 1.1, hue: 0.3, phase: 0.4 },
+          { type: 'crystal_shard', x: 2050, y: 600, s: 1.0, hue: 0.7, phase: 1.8 },
+          { type: 'crystal_shard', x: 3150, y: 600, s: 1.15, hue: 0.45, phase: 2.9 }
+        );
 
         return { platforms, hazards, collectibles, enemies, decor, specials };
       }
@@ -329,15 +407,15 @@
         enemy(2100, 380, 2000, 2480, 95, 'shadow_bat');
         enemy(2900, 550, 2800, 3200, 78, 'sleep_cloud');
         enemy(3700, 360, 3600, 4100, 100, 'shadow_bat');
-        enemy(4500, 550, 4520, 4850, 80, 'mushroom_patrol');
+        enemy(4600, 550, 4520, 4850, 80, 'mushroom_patrol');
 
-        for (let x = 180; x < 6100; x += 240 + Math.random() * 120) {
-          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
-          decor.push({
-            type: Math.random() < 0.35 ? 'flower' : Math.random() < 0.55 ? 'mushroom' : 'sprout',
-            x, y: 600, s: 0.45 + Math.random() * 0.75, hue: Math.random(), phase: Math.random() * 6
-          });
-        }
+        scatterConceptDecor(platforms, decor, 'garden_challenge', 33003);
+        // Garden lanterns at checkpoints reinforce safe resting spots
+        decor.push(
+          { type: 'lantern', x: 1980, y: 600, s: 1.05, hue: 0.55, phase: 0.2 },
+          { type: 'lantern', x: 3300, y: 600, s: 1.0, hue: 0.4, phase: 1.5 },
+          { type: 'lantern', x: 5200, y: 600, s: 1.1, hue: 0.7, phase: 2.7 }
+        );
 
         return { platforms, hazards, collectibles, enemies, decor, specials };
       }
@@ -377,7 +455,8 @@
         const ground = (x, w, y = 600) => platforms.push({ x, y, w, h: 180, kind: 'ground' });
         const isle = (x, y, w, h = 34, kind = 'island') => platforms.push({ x, y, w, h, kind });
         const bouncepad = (x, y, w) => platforms.push({ x, y, w, h: 28, kind: 'bouncepad' });
-        const fallblock = (x, y, w) => platforms.push({ x, y, w, h: 28, kind: 'fallblock' });
+        const fallblock = (x, y, w) =>
+          platforms.push({ x, y, w, h: 28, kind: 'fallblock', homeY: y, triggered: false, fallTimer: 0, vy: 0, gone: false });
         const hazard = (type, x, y, w = 78, h = 54) =>
           hazards.push({ type, x, y, w, h, pulse: Math.random() * Math.PI * 2 });
         const veg = (type, x, y) =>
@@ -467,13 +546,14 @@
         enemy(5700, 400, 5600, 5950, 105, 'shadow_bat');
         enemy(6300, 550, 6150, 6500, 80, 'mushroom_patrol');
 
-        for (let x = 200; x < 6700; x += 300 + Math.random() * 140) {
-          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
-          decor.push({
-            type: Math.random() < 0.45 ? 'flower' : Math.random() < 0.65 ? 'mushroom' : 'sprout',
-            x, y: 600, s: 0.5 + Math.random() * 0.8, hue: Math.random(), phase: Math.random() * 6
-          });
-        }
+        scatterConceptDecor(platforms, decor, 'factory', 44004);
+        // Factory landmarks: pipes frame the fallblock gauntlet so the chasm reads industrial
+        decor.push(
+          { type: 'pipe', x: 4050, y: 600, s: 1.25, hue: 0.2, phase: 0.3 },
+          { type: 'pipe', x: 4960, y: 600, s: 1.15, hue: 0.55, phase: 1.1 },
+          { type: 'candy_stack', x: 5300, y: 600, s: 1.0, hue: 0.8, phase: 2.0 },
+          { type: 'gear', x: 1600, y: 600, s: 0.95, hue: 0.4, phase: 0.8 }
+        );
 
         return { platforms, hazards, collectibles, enemies, decor };
       }
@@ -487,7 +567,7 @@
       worldW: 7600,
       requiredVeggies: 14,
       spawn: { x: 140, y: 350 },
-      portal: { x: 7280, y: 410, w: 125, h: 190 },
+      portal: { x: 7420, y: 410, w: 125, h: 190 },
       checkpoints: [
         { x: 130, trigger: 0 },
         { x: 1950, trigger: 1900 },
@@ -544,7 +624,8 @@
         ground(4500, 550);
         ground(5350, 500);
         ground(6200, 550);
-        ground(7050, 550);
+        // Finale plaza: long safe approach for shrine (key → cage → portal)
+        ground(7050, 700);
 
         // Bridge islands over the wider ground gaps
         isle(1780, 520, 180);
@@ -554,6 +635,12 @@
         isle(5180, 510, 160);
         isle(6000, 530, 170);
         isle(6880, 520, 160);
+        // Aerial path islands (summit altitude chain)
+        isle(2100, 360, 140);
+        isle(2450, 300, 130);
+        isle(3100, 340, 150);
+        isle(4800, 300, 140);
+        isle(5600, 340, 150);
 
         // Moving platforms (reused challenge element)
         movers.push(
@@ -581,22 +668,23 @@
           ['thorn', 6250, 562, 92, 38],
           ['puddle', 6450, 568, 100, 32],
           ['crystal', 6670, 546, 70, 50],
-          ['crystal', 7100, 546, 84, 54],
-          ['puddle', 7500, 568, 100, 32]
+          // Keep hazards clear of shrine plaza (7050+)
+          ['puddle', 6900, 568, 90, 32]
         ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
 
         [
           ['lettuce', 250, 545], ['cabbage', 600, 545], ['carrot', 1200, 545],
           ['radish', 1550, 545], ['lettuce', 1850, 465], ['cabbage', 2100, 545],
-          ['carrot', 2350, 545], ['radish', 2680, 485], ['lettuce', 2950, 545],
+          // Aerial veggies reward high path
+          ['carrot', 2160, 305], ['radish', 2510, 245], ['lettuce', 3160, 285],
           ['cabbage', 3200, 545], ['carrot', 3520, 475], ['radish', 3800, 545],
           ['lettuce', 4050, 545], ['cabbage', 4380, 465], ['carrot', 4650, 545],
-          ['radish', 4900, 545], ['lettuce', 5250, 455], ['cabbage', 5500, 545],
-          ['carrot', 5750, 545], ['radish', 6080, 475], ['lettuce', 6350, 545],
-          ['cabbage', 6600, 545], ['carrot', 6950, 465], ['radish', 7150, 545]
+          ['radish', 4860, 245], ['lettuce', 5250, 455], ['cabbage', 5500, 545],
+          ['carrot', 5660, 285], ['radish', 6080, 475], ['lettuce', 6350, 545],
+          ['cabbage', 6600, 545], ['carrot', 6950, 465], ['radish', 7120, 545]
         ].forEach(([type, x, y]) => veg(type, x, y));
 
-        // The single key — sits on the flat run-up to the portal, unavoidable
+        // Key sits on shrine approach — clear of hazards, before cage
         key(7180, 545);
 
         enemy(500, 550, 420, 780, 88, 'mushroom_patrol');
@@ -608,16 +696,18 @@
         enemy(4700, 550, 4550, 5000, 92, 'mushroom_patrol');
         enemy(6400, 400, 6250, 6700, 115, 'shadow_bat');
 
-        // Pobi cage — the finale rescue prop, just past the key
-        specials.push({ type: 'pobi_cage', x: 7300, y: 430, w: 100, h: 170 });
+        // Shrine layout: pillars → key → cage → portal (no overlap)
+        // cage centered between key and portal on the plaza
+        specials.push({ type: 'pobi_cage', x: 7260, y: 430, w: 100, h: 170 });
 
-        for (let x = 180; x < 7500; x += 260 + Math.random() * 120) {
-          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
-          decor.push({
-            type: Math.random() < 0.35 ? 'flower' : Math.random() < 0.55 ? 'mushroom' : 'sprout',
-            x, y: 600, s: 0.45 + Math.random() * 0.75, hue: Math.random(), phase: Math.random() * 6
-          });
-        }
+        scatterConceptDecor(platforms, decor, 'summit_finale', 55005);
+        decor.push(
+          { type: 'star_pillar', x: 7100, y: 600, s: 1.35, hue: 0.25, phase: 0.5 },
+          { type: 'star_pillar', x: 7380, y: 600, s: 1.25, hue: 0.75, phase: 1.8 },
+          { type: 'nebula_bloom', x: 7220, y: 600, s: 0.95, hue: 0.5, phase: 2.2 },
+          { type: 'crystal_shard', x: 7320, y: 600, s: 0.9, hue: 0.6, phase: 0.9 },
+          { type: 'lantern', x: 7160, y: 600, s: 0.85, hue: 0.4, phase: 1.2 }
+        );
 
         return { platforms, hazards, collectibles, enemies, decor, specials };
       }
