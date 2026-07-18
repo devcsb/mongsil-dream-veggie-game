@@ -33,7 +33,10 @@
           </div>
           <div class="hud-pill">
             <span class="hud-icon veggie-mini" aria-hidden="true">🥬</span>
-            <span id="veggie-text">0 / 18</span>
+            <span id="veggie-text">0 / 6</span>
+          </div>
+          <div id="key-hud" class="hud-pill key-hud" hidden>
+            <span class="hud-icon" aria-hidden="true">🔑</span>
           </div>
           <div class="hud-pill score-pill">
             <span class="hud-kicker">SCORE</span>
@@ -66,7 +69,7 @@
           <div class="start-copy">
             <p class="eyebrow">DREAMY SIDE-SCROLL ADVENTURE</p>
             <h1><span>몽실이의</span><br />꿈채소 원정대</h1>
-            <p class="intro">3개의 꿈 스테이지를 건너 채소를 모으고, 마지막에 갇힌 <strong>반란군 포비</strong>를 구출해 주세요. 점프 홀드 높이와 공중 미세 조작으로 착지를 다듬을 수 있어요!</p>
+            <p class="intro">5개의 꿈 스테이지를 건너 채소를 모으고, 마지막에 갇힌 <strong>반란군 포비</strong>를 구출해 주세요. 점프 홀드 높이와 공중 미세 조작으로 착지를 다듬을 수 있어요!</p>
             <div class="control-grid">
               <div class="control-item"><span class="keycap">A D</span><span>가속·급정거</span></div>
               <div class="control-item"><span class="keycap">SPACE</span><span>가변 점프</span></div>
@@ -76,6 +79,10 @@
               <span>꿈속으로 출발</span><span class="button-arrow">→</span>
             </button>
             <p class="tiny-note">키보드와 터치 조작을 모두 지원해요.</p>
+            <div class="leaderboard-wrap start-leaderboard-wrap">
+              <p class="leaderboard-title">🏆 명예의 전당</p>
+              <ol id="start-leaderboard" class="leaderboard" aria-label="최고 점수 순위"></ol>
+            </div>
           </div>
         </div>
       </div>
@@ -104,6 +111,17 @@
             <div><span>모은 채소</span><strong id="result-veggies">0</strong></div>
             <div><span>점수</span><strong id="result-score">0</strong></div>
             <div><span>최고 기록</span><strong id="best-score">0</strong></div>
+          </div>
+          <div id="name-entry" class="name-entry" hidden>
+            <p class="name-entry-label">순위권 진입! 이름을 남겨주세요</p>
+            <div class="name-entry-row">
+              <input id="name-input" class="name-input" type="text" maxlength="8" placeholder="몽실이" aria-label="이름 입력" />
+              <button id="name-submit" class="secondary-button" type="button">등록</button>
+            </div>
+          </div>
+          <div class="leaderboard-wrap">
+            <p class="leaderboard-title">🏆 순위</p>
+            <ol id="result-leaderboard" class="leaderboard" aria-label="점수 순위"></ol>
           </div>
           <button id="restart-button" class="primary-button" type="button"><span>다시 꿈꾸기</span><span>↻</span></button>
         </div>

@@ -53,7 +53,7 @@ assert(gameSrc.includes('MongsilStages'), 'game depends on MongsilStages');
 const Physics = require(path.join(root, 'physics.js'));
 const Stages = require(path.join(root, 'stages.js'));
 assert(typeof Physics.stepHorizontal === 'function', 'Physics.stepHorizontal export');
-assert(Stages.stageCount() === 3, 'Stages.stageCount is 3');
+assert(Stages.stageCount() === 5, 'Stages.stageCount is 5');
 
 // Ending path simulation via stage API
 let cleared = 0;
@@ -62,8 +62,8 @@ for (let i = 0; i < Stages.stageCount(); i++) {
   assert(s.portal && s.requiredVeggies > 0, `stage ${i + 1} clearable`);
   cleared++;
 }
-assert(cleared === 3, 'all three stages clearable in sequence');
-log('ENDING_SIM: clear 1→2→3 then rescue 반란군 포비');
+assert(cleared === 5, 'all five stages clearable in sequence');
+log('ENDING_SIM: clear 1→2→3→4→5 then rescue 반란군 포비');
 
 // game.js syntax check via new Function (strip IIFE runtime by checking parse)
 try {

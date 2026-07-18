@@ -40,7 +40,13 @@
     leftButton: document.getElementById('left-button'),
     rightButton: document.getElementById('right-button'),
     jumpButton: document.getElementById('jump-button'),
-    mobileControls: document.getElementById('mobile-controls')
+    mobileControls: document.getElementById('mobile-controls'),
+    keyHud: document.getElementById('key-hud'),
+    nameEntry: document.getElementById('name-entry'),
+    nameInput: document.getElementById('name-input'),
+    nameSubmit: document.getElementById('name-submit'),
+    startLeaderboard: document.getElementById('start-leaderboard'),
+    resultLeaderboard: document.getElementById('result-leaderboard')
   };
 
   const snailImage = new Image();
@@ -70,7 +76,10 @@
     portalNotice: 0,
     worldW: 4200,
     requiredVeggies: 6,
-    jumpWasHeld: false
+    jumpWasHeld: false,
+    hasKey: false,
+    stageStart: 0,
+    comboMilestone: false
   };
 
   const input = {
@@ -138,6 +147,9 @@
     state.combo = 0;
     state.comboTimer = 0;
     state.portalNotice = 0;
+    state.hasKey = false;
+    state.stageStart = state.time;
+    state.comboMilestone = false;
     if (!keepScore) {
       state.score = 0;
       state.lives = 4;
@@ -353,8 +365,82 @@
     }
   }
 
+  const SCORES_KEY = 'snailDreamScores';
+  function readScores() {
+    try {
+      const raw = localStorage.getItem(SCORES_KEY);
+      let arr = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(arr)) arr = [];
+      return arr.sort((a, b) => b.score - a.score).slice(0, 10);
+    } catch (_) { return []; }
+  }
+  function writeScores(arr) {
+    try { localStorage.setItem(SCORES_KEY, JSON.stringify(arr.slice(0, 10))); } catch (_) {}
+  }
+  // One-time migration of the legacy single best score into the board.
+  // Runs at load, before any new score is written, so it captures the real
+  // legacy value (not the current run) and never re-seeds a phantom row.
+  function migrateScores() {
+    try {
+      if (localStorage.getItem(SCORES_KEY)) return;
+      const best = readBestScore();
+      if (best > 0) {
+        writeScores([{ name: '몽실이', score: best, date: new Date().toISOString(), stagesCleared: 0 }]);
+      }
+    } catch (_) {}
+  }
+  function qualifiesForBoard(score) {
+    if (score <= 0) return false;
+    const s = readScores();
+    return s.length < 10 || score > (s[s.length - 1]?.score || 0);
+  }
+  function submitScore(name, score, stages) {
+    const s = readScores();
+    s.push({ name: (name || '몽실이').slice(0, 8), score, date: new Date().toISOString(), stagesCleared: stages });
+    s.sort((a, b) => b.score - a.score);
+    const top = s.slice(0, 10);
+    writeScores(top);
+    return top;
+  }
+  function renderLeaderboard(el) {
+    if (!el) return;
+    const s = readScores();
+    el.innerHTML = '';
+    if (!s.length) {
+      const li = document.createElement('li');
+      li.className = 'leaderboard-empty';
+      li.textContent = '아직 기록이 없어요. 첫 주인공이 되어보세요!';
+      el.appendChild(li);
+      return;
+    }
+    s.forEach((e, i) => {
+      const li = document.createElement('li');
+      if (i === 0) li.className = 'lb-top1';
+      const left = document.createElement('span');
+      left.className = 'lb-left';
+      const rank = document.createElement('span');
+      rank.className = 'lb-rank';
+      rank.textContent = String(i + 1);
+      const nm = document.createElement('span');
+      nm.className = 'lb-name';
+      nm.textContent = e.name;
+      left.appendChild(rank); left.appendChild(nm);
+      const sc = document.createElement('span');
+      sc.className = 'lb-score';
+      sc.textContent = Number(e.score).toLocaleString('ko-KR');
+      li.appendChild(left); li.appendChild(sc);
+      el.appendChild(li);
+    });
+  }
+
   function completeStage() {
-    state.score += 1500 + state.lives * 300;
+    const elapsed = state.time - state.stageStart;
+    const targetSec = state.worldW / 260;
+    const timeBonus = Math.max(0, Math.min(1200, Math.round((targetSec - elapsed) * 8)));
+    const totalVeg = collectibles.filter((v) => v.type !== 'key').length;
+    const perfectBonus = state.collected === totalVeg ? 1000 : 0;
+    state.score += 1500 + state.lives * 300 + timeBonus + perfectBonus;
+    if (perfectBonus) showToast('완벽 수확! +1000 ✦', 2400);
     state.stagesCleared = state.stageIndex + 1;
     audio.stageClear();
 
@@ -386,10 +472,10 @@
     ui.resultTitle.textContent = rescued
       ? '반란군 포비를 구출했어요!'
       : won
-        ? '달빛 정원 도착!'
+        ? `${StageLib.getStage(state.stagesCleared - 1)?.name || '꿈'} 도착!`
         : '꿈길에서 깨어났어요';
     ui.resultMessage.textContent = rescued
-      ? '세 스테이지를 모두 클리어하고 반란군 포비를 안전하게 구출했습니다. 몽실이와 포비가 함께 미소 지어요!'
+      ? '다섯 스테이지를 모두 클리어하고 반란군 포비를 안전하게 구출했습니다. 몽실이와 포비가 함께 미소 지어요!'
       : won
         ? '몽실이가 반짝이는 꿈채소를 품에 안고 무사히 도착했어요.'
         : '괜찮아요. 다음 꿈에서는 장애물을 더 가볍게 넘어봐요!';
@@ -401,6 +487,11 @@
       ui.resultPobi.classList.toggle('is-visible', rescued);
       ui.resultPobi.setAttribute('aria-hidden', String(!rescued));
     }
+
+    const doQualify = qualifiesForBoard(Math.floor(state.score));
+    if (ui.nameEntry) ui.nameEntry.hidden = !doQualify;
+    if (doQualify && ui.nameInput) { ui.nameInput.value = ''; setTimeout(() => ui.nameInput.focus(), 320); }
+    renderLeaderboard(ui.resultLeaderboard);
 
     ui.resultScreen.classList.add('is-visible');
     ui.resultScreen.setAttribute('aria-hidden', 'false');
@@ -421,6 +512,11 @@
     ui.progress.style.width = `${Math.min(100, Math.max(0, progress * 100))}%`;
     const stage = StageLib.getStage(state.stageIndex);
     ui.stage.textContent = `S${stage.id} ${stage.name}`;
+    if (ui.keyHud) {
+      const needsKey = !!currentStage?.needsKey;
+      ui.keyHud.hidden = !needsKey;
+      ui.keyHud.classList.toggle('has-key', needsKey && state.hasKey);
+    }
   }
 
   function queueJump() {
@@ -511,6 +607,18 @@
     audio.setEnabled(state.sound);
   });
 
+  if (ui.nameSubmit) {
+    const doSubmit = () => {
+      const nm = (ui.nameInput?.value || '').trim() || '몽실이';
+      submitScore(nm, Math.floor(state.score), state.stagesCleared);
+      if (ui.nameEntry) ui.nameEntry.hidden = true;
+      renderLeaderboard(ui.resultLeaderboard);
+      renderLeaderboard(ui.startLeaderboard);
+    };
+    ui.nameSubmit.addEventListener('click', doSubmit);
+    ui.nameInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doSubmit(); } });
+  }
+
   function rectsOverlap(a, b, inset = 0) {
     return (
       a.x + inset < b.x + b.w &&
@@ -542,6 +650,20 @@
         if (p.x + p.w > p.maxX) {
           p.x = p.maxX - p.w;
           p.dir = -1;
+        }
+      }
+    }
+  }
+
+  function updateFallblocks(dt) {
+    for (const p of platforms) {
+      if (p.kind !== 'fallblock' || p.gone) continue;
+      if (p.triggered) {
+        p.fallTimer -= dt;
+        if (p.fallTimer <= 0) {
+          p.vy = (p.vy || 0) + 1800 * dt;
+          p.y += p.vy * dt;
+          if (p.y > H + 200) p.gone = true;
         }
       }
     }
@@ -579,6 +701,7 @@
     player.prevY = player.y;
 
     updateMovers(dt);
+    updateFallblocks(dt);
 
     const jumpJustReleased = state.jumpWasHeld && !input.jumpHeld;
     state.jumpWasHeld = input.jumpHeld;
@@ -651,6 +774,7 @@
   function collideHorizontal() {
     const box = { x: player.x + 12, y: player.y + 10, w: player.w - 24, h: player.h - 13 };
     for (const p of platforms) {
+      if (p.gone) continue;
       if (!rectsOverlap(box, p)) continue;
       const prevBox = {
         x: player.prevX + 12,
@@ -680,8 +804,19 @@
       h: player.h - 6
     };
     for (const p of platforms) {
+      if (p.gone) continue;
       if (!rectsOverlap(box, p)) continue;
       if (player.vy >= 0 && prevBox.y + prevBox.h <= p.y + 16) {
+        if (p.kind === 'bouncepad') {
+          player.y = p.y - player.h;
+          player.vy = -1050;
+          player.grounded = false;
+          player.squash = -0.2;
+          audio.jump();
+          emitDust(player.x + player.w * 0.5, p.y, 8, '#9ff0d8');
+          box.y = player.y + 6;
+          continue;
+        }
         const hardLanding = player.vy > 650;
         player.y = p.y - player.h;
         player.vy = 0;
@@ -697,6 +832,7 @@
           player.landingPulse = 1;
           emitDust(player.x + player.w * 0.5, p.y, 9, '#d7c0ff');
         }
+        if (p.kind === 'fallblock' && !p.triggered) { p.triggered = true; p.fallTimer = 0.35; }
       } else if (player.vy < 0 && prevBox.y >= p.y + p.h - 12) {
         player.y = p.y + p.h - 6;
         player.vy = 50;
@@ -745,11 +881,25 @@
       const dx = cx - v.x;
       const dy = cy - v.y;
       if (dx * dx + dy * dy < 62 * 62) {
+        if (v.type === 'key') {
+          v.collected = true;
+          state.hasKey = true;
+          audio.checkpoint();
+          emitBurst(v.x, v.y, '#ffe08a', 24);
+          showToast('은하 열쇠 획득! 꿈문을 열 수 있어요 🔑', 2600);
+          updateHUD();
+          continue;
+        }
         v.collected = true;
         state.collected++;
-        state.combo = state.comboTimer > 0 ? Math.min(7, state.combo + 1) : 1;
-        state.comboTimer = 2.1;
+        state.combo = state.comboTimer > 0 ? Math.min(9, state.combo + 1) : 1;
+        state.comboTimer = 2.4;
         state.score += 100 * state.combo;
+        if (state.combo === 9 && !state.comboMilestone) {
+          state.score += 500;
+          state.comboMilestone = true;
+          showToast('9콤보 폭발! +500 🌟', 2200);
+        }
         audio.collect(state.combo);
         const colors = {
           lettuce: '#a8f2b3',
@@ -797,7 +947,7 @@
       if (player.x >= list[i].trigger && i > state.checkpoint) {
         state.checkpoint = i;
         state.checkpointX = list[i].x;
-        showToast('달빛 이슬에 진행 지점을 저장했어요 ✦');
+        showToast('반짝이는 이슬에 진행 지점을 저장했어요 ✦');
         audio.checkpoint();
         emitBurst(player.x + player.w / 2, player.y + player.h / 2, '#aaf3ff', 22);
         break;
@@ -810,11 +960,17 @@
     if (!portal) return;
     const pbox = { x: player.x + 14, y: player.y + 10, w: player.w - 24, h: player.h - 10 };
     if (rectsOverlap(pbox, portal)) {
-      if (state.collected >= state.requiredVeggies) {
+      const gateOk = state.collected >= state.requiredVeggies && (!currentStage.needsKey || state.hasKey);
+      if (gateOk) {
         completeStage();
       } else if (!state.portalNotice || state.time - state.portalNotice > 2.5) {
-        const needed = state.requiredVeggies - state.collected;
-        showToast(`꿈문이 졸고 있어요. 채소 ${needed}개를 더 모아 주세요!`, 2600);
+        let msg;
+        if (state.collected < state.requiredVeggies) {
+          msg = `꿈문이 졸고 있어요. 채소 ${state.requiredVeggies - state.collected}개를 더 모아 주세요!`;
+        } else {
+          msg = '은하 열쇠가 필요해요! 맵에서 🔑 를 찾아보세요.';
+        }
+        showToast(msg, 2600);
         state.portalNotice = state.time;
         player.vx = -220;
       }
@@ -836,7 +992,15 @@
     }
     showToast(fell ? '구름 아래로 퐁! 이슬 지점에서 다시 시작해요.' : '앗, 반짝 장애물에 닿았어요!');
     player.x = state.checkpointX;
-    player.y = 360;
+    {
+      const sx = state.checkpointX + player.w * 0.5;
+      let landY = 360, topFound = Infinity;
+      for (const p of platforms) {
+        if (p.kind === 'moving' || p.kind === 'fallblock' || p.gone) continue;
+        if (sx >= p.x && sx <= p.x + p.w && p.y < topFound) { topFound = p.y; landY = p.y - player.h; }
+      }
+      player.y = landY;
+    }
     player.prevX = player.x;
     player.prevY = player.y;
     player.vx = sourceX < player.x ? 170 : -170;
@@ -933,7 +1097,7 @@
     ctx.translate(-state.cameraX, 0);
 
     drawBackDecor(palette);
-    for (const p of platforms) if (isVisible(p.x, p.w)) drawPlatform(p, palette);
+    for (const p of platforms) if (!p.gone && isVisible(p.x, p.w)) drawPlatform(p, palette);
     for (const d of decor) if (isVisible(d.x, 100)) drawDecor(d);
     for (const s of specials) if (isVisible(s.x, s.w || 100)) drawSpecial(s);
     for (const h of hazards) if (isVisible(h.x, h.w)) drawHazard(h);
@@ -1102,6 +1266,10 @@
 
     const isCloud = p.kind === 'cloud';
     const isMoving = p.kind === 'moving';
+    const isBounce = p.kind === 'bouncepad';
+    const isFall = p.kind === 'fallblock';
+
+    if (isFall && p.triggered) ctx.translate((Math.random() - 0.5) * 3, 0);
 
     const body = ctx.createLinearGradient(0, y, 0, y + Math.min(h, 160));
     if (isCloud) {
@@ -1111,6 +1279,14 @@
     } else if (isMoving) {
       body.addColorStop(0, mixColor(palette.accent, '#ffffff', 0.25));
       body.addColorStop(0.5, palette.groundBody);
+      body.addColorStop(1, palette.groundDark);
+    } else if (isBounce) {
+      body.addColorStop(0, mixColor(palette.accent, '#ffffff', 0.35));
+      body.addColorStop(0.5, palette.groundTop);
+      body.addColorStop(1, palette.accent);
+    } else if (isFall) {
+      body.addColorStop(0, p.triggered ? mixColor(palette.groundBody, '#ff6a6a', 0.55) : mixColor(palette.groundBody, palette.groundDark, 0.2));
+      body.addColorStop(0.56, p.triggered ? mixColor(palette.groundDark, '#ff6a6a', 0.4) : mixColor(palette.groundBody, palette.groundDark, 0.5));
       body.addColorStop(1, palette.groundDark);
     } else {
       body.addColorStop(0, palette.groundBody);
@@ -1137,6 +1313,39 @@
       roundedPath(ctx, x + 4, y + 4, w - 8, h - 8, 10);
       ctx.stroke();
       ctx.setLineDash([]);
+    }
+
+    if (isBounce) {
+      ctx.strokeStyle = mixColor(palette.accent, '#ffffff', 0.5);
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 3; i++) {
+        const cy = y + 8 + i * 7;
+        ctx.beginPath();
+        ctx.moveTo(x + 10, cy);
+        ctx.lineTo(x + w - 10, cy);
+        ctx.stroke();
+      }
+      ctx.fillStyle = mixColor(palette.accent, '#ffffff', 0.65);
+      ctx.beginPath();
+      ctx.moveTo(x + w / 2 - 10, y - 2);
+      ctx.lineTo(x + w / 2 + 10, y - 2);
+      ctx.lineTo(x + w / 2, y - 14);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    if (isFall && p.triggered) {
+      ctx.strokeStyle = 'rgba(60,15,15,.55)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.3, y + 3);
+      ctx.lineTo(x + w * 0.42, y + h * 0.5);
+      ctx.lineTo(x + w * 0.34, y + h - 4);
+      ctx.moveTo(x + w * 0.68, y + 2);
+      ctx.lineTo(x + w * 0.58, y + h * 0.55);
+      ctx.lineTo(x + w * 0.66, y + h - 3);
+      ctx.stroke();
     }
 
     if (p.kind !== 'ground' && !isCloud) {
@@ -1801,6 +2010,9 @@
     completeStage,
     endGame
   };
+
+  migrateScores();
+  renderLeaderboard(ui.startLeaderboard);
 
   requestAnimationFrame(loop);
 })();

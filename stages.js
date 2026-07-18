@@ -1,6 +1,6 @@
 /**
  * Stage definitions for Mongsil Dream Veggie Game.
- * Three discrete concept stages with rising difficulty and unique entities.
+ * Five discrete concept stages with rising difficulty and unique entities.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -21,13 +21,14 @@
       key: 'lilac-dew',
       name: '라일락 이슬숲',
       blurb: '부드러운 이슬 길. 수정과 웅덩이를 피해 채소를 모아요.',
-      worldW: 4200,
+      worldW: 5000,
       requiredVeggies: 6,
       spawn: { x: 140, y: 350 },
-      portal: { x: 3920, y: 410, w: 125, h: 190 },
+      portal: { x: 4680, y: 410, w: 125, h: 190 },
       checkpoints: [
         { x: 130, trigger: 0 },
-        { x: 2100, trigger: 2050 }
+        { x: 2100, trigger: 2050 },
+        { x: 4400, trigger: 4340 }
       ],
       palette: {
         name: '라일락 이슬숲',
@@ -63,13 +64,14 @@
 
         ground(0, 1500);
         ground(1700, 1100);
-        ground(3000, 1200);
+        ground(3000, 2000);
 
         [
           [480, 500, 220], [860, 420, 210], [1200, 500, 200],
           [1580, 460, 180], [1920, 400, 200], [2280, 480, 220],
           [2620, 390, 200], [2980, 470, 190], [3340, 400, 210],
-          [3620, 500, 200]
+          [3620, 500, 200], [3960, 460, 190], [4260, 380, 200],
+          [4600, 460, 180]
         ].forEach(([x, y, w]) => isle(x, y, w));
 
         [
@@ -92,7 +94,7 @@
         enemy(2000, 550, 1880, 2360, 58);
         enemy(3200, 550, 3080, 3520, 60);
 
-        for (let x = 240; x < 4100; x += 320 + Math.random() * 160) {
+        for (let x = 240; x < 4900; x += 320 + Math.random() * 160) {
           decor.push({
             type: Math.random() < 0.55 ? 'flower' : Math.random() < 0.7 ? 'mushroom' : 'sprout',
             x, y: 600, s: 0.55 + Math.random() * 0.85, hue: Math.random(), phase: Math.random() * 6
@@ -107,13 +109,14 @@
       key: 'cotton-crystal',
       name: '솜사탕 수정구름',
       blurb: '구름 발판과 바람 구역이 나타나요. 공중 점프 보정이 중요해요.',
-      worldW: 4600,
+      worldW: 5600,
       requiredVeggies: 8,
       spawn: { x: 140, y: 350 },
-      portal: { x: 4300, y: 410, w: 125, h: 190 },
+      portal: { x: 5280, y: 410, w: 125, h: 190 },
       checkpoints: [
         { x: 130, trigger: 0 },
-        { x: 2300, trigger: 2240 }
+        { x: 2200, trigger: 2140 },
+        { x: 4700, trigger: 4640 }
       ],
       palette: {
         name: '솜사탕 수정구름',
@@ -154,14 +157,16 @@
         ground(0, 900);
         ground(1200, 700);
         ground(2400, 650);
-        ground(3600, 1000);
+        ground(3600, 2000);
 
         // Cloud platforms (unique stage 2)
         [
           [420, 470, 200, 'cloud'], [780, 390, 180, 'cloud'], [1050, 480, 160, 'cloud'],
           [1480, 430, 190, 'cloud'], [1780, 340, 170, 'cloud'], [2080, 450, 180, 'cloud'],
           [2550, 400, 200, 'cloud'], [2900, 320, 180, 'cloud'], [3200, 430, 170, 'cloud'],
-          [3550, 360, 190, 'cloud'], [3900, 470, 180, 'cloud'], [4120, 500, 160, 'island']
+          [3550, 360, 190, 'cloud'], [3900, 470, 180, 'cloud'], [4120, 500, 160, 'island'],
+          [4400, 430, 190, 'cloud'], [4700, 350, 180, 'cloud'], [5000, 460, 170, 'cloud'],
+          [5300, 400, 160, 'cloud']
         ].forEach(([x, y, w, kind]) => isle(x, y, w, 30, kind));
 
         // Wind zones push player (unique)
@@ -184,15 +189,16 @@
           ['radish', 1180, 425], ['lettuce', 1600, 375], ['cabbage', 1900, 285],
           ['carrot', 2240, 395], ['lettuce', 2680, 345], ['radish', 3020, 265],
           ['cabbage', 3340, 375], ['carrot', 3680, 305], ['lettuce', 4000, 415],
-          ['radish', 4200, 545], ['cabbage', 4400, 545]
+          ['radish', 4850, 545], ['cabbage', 5150, 545]
         ].forEach(([type, x, y]) => veg(type, x, y));
 
         enemy(500, 550, 420, 780, 62, 'sleep_cloud');
         enemy(1600, 550, 1480, 1880, 70, 'sleep_cloud');
         enemy(2700, 550, 2560, 3000, 68, 'mushroom_patrol');
         enemy(3800, 550, 3680, 4200, 74, 'sleep_cloud');
+        enemy(4900, 550, 4800, 5300, 78, 'sleep_cloud');
 
-        for (let x = 200; x < 4500; x += 280 + Math.random() * 140) {
+        for (let x = 200; x < 5500; x += 280 + Math.random() * 140) {
           decor.push({
             type: Math.random() < 0.4 ? 'flower' : 'sprout',
             x, y: 600, s: 0.5 + Math.random() * 0.7, hue: Math.random(), phase: Math.random() * 6
@@ -206,15 +212,16 @@
       id: 3,
       key: 'moonlit-garden',
       name: '달빛 채소정원',
-      blurb: '반란군 포비를 구출하세요. 가시와 그림자 박쥐, 움직이는 발판이 기다립니다.',
-      worldW: 5200,
+      blurb: '가시덤불과 그림자 박쥐, 움직이는 발판을 넘어 채소를 모아요.',
+      worldW: 6200,
       requiredVeggies: 10,
       spawn: { x: 140, y: 350 },
-      portal: { x: 4880, y: 410, w: 125, h: 190 },
+      portal: { x: 5880, y: 410, w: 125, h: 190 },
       checkpoints: [
         { x: 130, trigger: 0 },
-        { x: 1800, trigger: 1740 },
-        { x: 3400, trigger: 3340 }
+        { x: 1980, trigger: 1900 },
+        { x: 3300, trigger: 3240 },
+        { x: 5200, trigger: 5140 }
       ],
       palette: {
         name: '달빛 채소정원',
@@ -223,8 +230,8 @@
         groundTop: '#e2b9ee', groundBody: '#775083', groundDark: '#3d2b56',
         accent: '#b8f8dc'
       },
-      // New vs 1–2: thorns, moving platforms, shadow_bat, cage (pobi rescue prop)
-      uniqueElements: ['thorn', 'moving', 'shadow_bat', 'pobi_cage'],
+      // New vs 1–2: thorns, moving platforms, shadow_bat
+      uniqueElements: ['thorn', 'moving', 'shadow_bat'],
       concept: 'garden_challenge',
       build() {
         const platforms = [];
@@ -260,7 +267,7 @@
         ground(1900, 480);
         ground(2800, 450);
         ground(3700, 500);
-        ground(4500, 700);
+        ground(4500, 1700);
 
         // Tight island chain
         [
@@ -269,7 +276,8 @@
           [2100, 430, 130], [2350, 340, 120], [2580, 450, 140],
           [3000, 400, 130], [3240, 310, 120], [3480, 420, 140],
           [3920, 380, 130], [4160, 300, 120], [4400, 450, 150],
-          [4680, 500, 140]
+          [4680, 500, 140], [4980, 420, 130], [5220, 340, 120],
+          [5460, 450, 140], [5700, 380, 130], [5940, 300, 120]
         ].forEach(([x, y, w]) => isle(x, y, w));
 
         // Moving platforms (unique challenge)
@@ -306,15 +314,6 @@
           { type: 'wind', x: 3200, y: 140, w: 280, h: 430, forceX: -150, forceY: -60 }
         );
 
-        // Pobi cage near portal (visual + ending trigger prop)
-        specials.push({
-          type: 'pobi_cage',
-          x: 4780,
-          y: 430,
-          w: 100,
-          h: 170
-        });
-
         [
           ['lettuce', 280, 545], ['cabbage', 480, 445], ['carrot', 700, 365],
           ['radish', 980, 445], ['lettuce', 1280, 395], ['cabbage', 1550, 305],
@@ -331,7 +330,283 @@
         enemy(3700, 360, 3600, 4100, 110, 'shadow_bat');
         enemy(4500, 550, 4400, 4850, 80, 'mushroom_patrol');
 
-        for (let x = 180; x < 5100; x += 240 + Math.random() * 120) {
+        for (let x = 180; x < 6100; x += 240 + Math.random() * 120) {
+          decor.push({
+            type: Math.random() < 0.35 ? 'flower' : Math.random() < 0.55 ? 'mushroom' : 'sprout',
+            x, y: 600, s: 0.45 + Math.random() * 0.75, hue: Math.random(), phase: Math.random() * 6
+          });
+        }
+
+        return { platforms, hazards, collectibles, enemies, decor, specials };
+      }
+    },
+    {
+      id: 4,
+      key: 'sunset-factory',
+      name: '노을 사탕공장',
+      blurb: '노을 지는 사탕공장, 탄성 발판과 무너지는 다리를 넘어가요.',
+      worldW: 6800,
+      requiredVeggies: 12,
+      spawn: { x: 140, y: 350 },
+      portal: { x: 6480, y: 410, w: 125, h: 190 },
+      checkpoints: [
+        { x: 130, trigger: 0 },
+        { x: 2000, trigger: 1950 },
+        { x: 4910, trigger: 4850 },
+        { x: 6100, trigger: 6040 }
+      ],
+      palette: {
+        name: '노을 사탕공장',
+        skyTop: '#3a1f2e', skyBottom: '#f2a65a',
+        glow: '#ffd9a0', far: '#7a4a5e', mid: '#b5687a',
+        groundTop: '#ffd9a0', groundBody: '#c47a6a', groundDark: '#5a2f3a',
+        accent: '#ff8fb0'
+      },
+      // New vs 1–3: bouncepad, fallblock (no new enemy kind)
+      uniqueElements: ['bouncepad', 'fallblock'],
+      concept: 'factory',
+      build() {
+        const platforms = [];
+        const hazards = [];
+        const collectibles = [];
+        const enemies = [];
+        const decor = [];
+
+        const ground = (x, w, y = 600) => platforms.push({ x, y, w, h: 180, kind: 'ground' });
+        const isle = (x, y, w, h = 34, kind = 'island') => platforms.push({ x, y, w, h, kind });
+        const bouncepad = (x, y, w) => platforms.push({ x, y, w, h: 28, kind: 'bouncepad' });
+        const fallblock = (x, y, w) => platforms.push({ x, y, w, h: 28, kind: 'fallblock' });
+        const hazard = (type, x, y, w = 78, h = 54) =>
+          hazards.push({ type, x, y, w, h, pulse: Math.random() * Math.PI * 2 });
+        const veg = (type, x, y) =>
+          collectibles.push({ type, x, y, r: 27, collected: false, phase: Math.random() * Math.PI * 2 });
+        const enemy = (x, y, minX, maxX, speed = 70, kind = 'mushroom_patrol') =>
+          enemies.push({
+            x, y,
+            w: kind === 'shadow_bat' ? 58 : 62,
+            h: kind === 'shadow_bat' ? 40 : 50,
+            minX, maxX, speed,
+            dir: Math.random() > 0.5 ? 1 : -1,
+            alive: true,
+            phase: Math.random() * 6,
+            kind,
+            baseY: y
+          });
+
+        // Main ground segments
+        ground(0, 900);
+        ground(1150, 550);
+        ground(2000, 500);
+        ground(2850, 550);
+        ground(3650, 500);
+        // (fallblock gauntlet bridges 4150 -> 4910, no solid ground beneath)
+        ground(4910, 550);
+        ground(6100, 700);
+
+        // Bridge islands over the two wider ground gaps
+        isle(1850, 520, 150);
+        isle(2650, 540, 160);
+
+        // Bouncepad #1: bonus reach near tail of ground(1150-1700)
+        bouncepad(1560, 600, 150);
+        isle(1590, 380, 170);
+
+        // Bouncepad #2: bonus reach near tail of ground(2850-3400)
+        bouncepad(3220, 600, 150);
+        isle(3250, 370, 170);
+
+        // Fallblock gauntlet across the 4150-4910 chasm
+        fallblock(4150, 600, 130);
+        fallblock(4360, 600, 130);
+        fallblock(4570, 600, 130);
+        fallblock(4780, 600, 130);
+
+        // Bouncepad #3 + descending island chain across the final 640px gap
+        bouncepad(5300, 600, 150);
+        isle(5320, 330, 180);
+        isle(5620, 380, 160);
+        isle(5850, 450, 150);
+        isle(6050, 520, 140);
+
+        [
+          ['crystal', 420, 546, 82, 54],
+          ['puddle', 750, 568, 100, 32],
+          ['crystal', 1250, 546, 84, 54],
+          ['thorn', 1450, 562, 90, 38],
+          ['puddle', 2100, 568, 105, 32],
+          ['crystal', 2350, 546, 82, 54],
+          ['thorn', 2950, 562, 92, 38],
+          ['puddle', 3150, 568, 100, 32],
+          ['crystal', 3750, 546, 86, 54],
+          ['thorn', 3950, 562, 88, 38],
+          ['crystal', 5050, 546, 84, 54],
+          ['puddle', 5150, 568, 100, 32],
+          ['crystal', 6250, 546, 86, 54],
+          ['thorn', 6450, 562, 92, 38],
+          ['puddle', 6600, 568, 100, 32],
+          ['crystal', 6700, 546, 82, 54]
+        ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
+
+        [
+          ['lettuce', 300, 545], ['cabbage', 600, 545], ['carrot', 1200, 545],
+          ['radish', 1650, 325], ['lettuce', 1900, 465], ['cabbage', 2100, 545],
+          ['carrot', 2350, 545], ['radish', 2680, 485], ['lettuce', 2900, 545],
+          ['cabbage', 3320, 315], ['carrot', 3300, 545], ['radish', 3750, 545],
+          ['lettuce', 4000, 545], ['cabbage', 4360, 545], ['carrot', 5000, 545],
+          ['lettuce', 5200, 545], ['radish', 5350, 275], ['cabbage', 5650, 325],
+          ['carrot', 5880, 395], ['radish', 6250, 545]
+        ].forEach(([type, x, y]) => veg(type, x, y));
+
+        enemy(500, 550, 420, 780, 60, 'mushroom_patrol');
+        enemy(1400, 550, 1300, 1650, 70, 'sleep_cloud');
+        enemy(1900, 450, 1800, 2100, 90, 'shadow_bat');
+        enemy(3000, 550, 2900, 3350, 65, 'mushroom_patrol');
+        enemy(3900, 550, 3700, 4100, 75, 'sleep_cloud');
+        enemy(5700, 400, 5600, 5950, 95, 'shadow_bat');
+        enemy(6300, 550, 6150, 6500, 70, 'mushroom_patrol');
+
+        for (let x = 200; x < 6700; x += 300 + Math.random() * 140) {
+          decor.push({
+            type: Math.random() < 0.45 ? 'flower' : Math.random() < 0.65 ? 'mushroom' : 'sprout',
+            x, y: 600, s: 0.5 + Math.random() * 0.8, hue: Math.random(), phase: Math.random() * 6
+          });
+        }
+
+        return { platforms, hazards, collectibles, enemies, decor };
+      }
+    },
+    {
+      id: 5,
+      key: 'galaxy-summit',
+      name: '은하 꿈길 정상',
+      needsKey: true,
+      blurb: '은하 정상에서 열쇠를 찾아 반란군 포비를 구출하세요.',
+      worldW: 7600,
+      requiredVeggies: 14,
+      spawn: { x: 140, y: 350 },
+      portal: { x: 7280, y: 410, w: 125, h: 190 },
+      checkpoints: [
+        { x: 130, trigger: 0 },
+        { x: 1950, trigger: 1900 },
+        { x: 3650, trigger: 3600 },
+        { x: 5350, trigger: 5300 },
+        { x: 7050, trigger: 6990 }
+      ],
+      palette: {
+        name: '은하 꿈길 정상',
+        skyTop: '#0d1030', skyBottom: '#5b4b9d',
+        glow: '#cfe3ff', far: '#2a2a5e', mid: '#4a4a8e',
+        groundTop: '#cfe3ff', groundBody: '#5a5aa0', groundDark: '#25254a',
+        accent: '#9ff0d8'
+      },
+      // New vs 1–4: key (collectible), pobi_cage (finale prop)
+      uniqueElements: ['key', 'pobi_cage'],
+      concept: 'summit_finale',
+      build() {
+        const platforms = [];
+        const hazards = [];
+        const collectibles = [];
+        const enemies = [];
+        const decor = [];
+        const specials = [];
+        const movers = [];
+
+        const ground = (x, w, y = 600) => platforms.push({ x, y, w, h: 180, kind: 'ground' });
+        const isle = (x, y, w, h = 34, kind = 'island') => platforms.push({ x, y, w, h, kind });
+        const hazard = (type, x, y, w = 78, h = 54) =>
+          hazards.push({ type, x, y, w, h, pulse: Math.random() * Math.PI * 2 });
+        const veg = (type, x, y) =>
+          collectibles.push({ type, x, y, r: 27, collected: false, phase: Math.random() * Math.PI * 2 });
+        const key = (x, y) =>
+          collectibles.push({ type: 'key', x, y, r: 27, collected: false, phase: Math.random() * Math.PI * 2 });
+        const enemy = (x, y, minX, maxX, speed = 80, kind = 'shadow_bat') =>
+          enemies.push({
+            x, y,
+            w: kind === 'shadow_bat' ? 58 : 62,
+            h: kind === 'shadow_bat' ? 40 : 50,
+            minX, maxX, speed,
+            dir: Math.random() > 0.5 ? 1 : -1,
+            alive: true,
+            phase: Math.random() * 6,
+            kind,
+            baseY: y
+          });
+
+        // Main ground segments
+        ground(0, 850);
+        ground(1100, 550);
+        ground(1950, 500);
+        ground(2800, 500);
+        ground(3650, 500);
+        ground(4500, 550);
+        ground(5350, 500);
+        ground(6200, 550);
+        ground(7050, 550);
+
+        // Bridge islands over the wider ground gaps
+        isle(1780, 520, 180);
+        isle(2600, 540, 170);
+        isle(3450, 530, 170);
+        isle(4300, 520, 170);
+        isle(5180, 510, 160);
+        isle(6000, 530, 170);
+        isle(6880, 520, 160);
+
+        // Moving platforms (reused challenge element)
+        movers.push(
+          { x: 2200, y: 350, w: 140, h: 28, kind: 'moving', minX: 2150, maxX: 2400, speed: 90, dir: 1, axis: 'x' },
+          { x: 5000, y: 320, w: 130, h: 28, kind: 'moving', minY: 280, maxY: 420, speed: 60, dir: 1, axis: 'y', minX: 5000, maxX: 5000 }
+        );
+        movers.forEach((m) => platforms.push(m));
+
+        [
+          ['crystal', 400, 546, 84, 54],
+          ['puddle', 700, 568, 100, 32],
+          ['crystal', 1250, 546, 82, 54],
+          ['thorn', 1450, 562, 90, 38],
+          ['puddle', 2050, 568, 104, 32],
+          ['crystal', 2250, 546, 84, 54],
+          ['thorn', 2900, 562, 92, 38],
+          ['puddle', 3100, 568, 100, 32],
+          ['crystal', 3750, 546, 86, 54],
+          ['thorn', 3950, 562, 88, 38],
+          ['puddle', 4550, 568, 102, 32],
+          ['crystal', 4750, 546, 84, 54],
+          ['thorn', 4900, 562, 90, 38],
+          ['puddle', 5450, 568, 100, 32],
+          ['crystal', 5650, 546, 86, 54],
+          ['thorn', 6250, 562, 92, 38],
+          ['puddle', 6450, 568, 100, 32],
+          ['crystal', 7100, 546, 84, 54]
+        ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
+
+        [
+          ['lettuce', 250, 545], ['cabbage', 600, 545], ['carrot', 1200, 545],
+          ['radish', 1550, 545], ['lettuce', 1850, 465], ['cabbage', 2100, 545],
+          ['carrot', 2350, 545], ['radish', 2680, 485], ['lettuce', 2950, 545],
+          ['cabbage', 3200, 545], ['carrot', 3520, 475], ['radish', 3800, 545],
+          ['lettuce', 4050, 545], ['cabbage', 4380, 465], ['carrot', 4650, 545],
+          ['radish', 4900, 545], ['lettuce', 5250, 455], ['cabbage', 5500, 545],
+          ['carrot', 5750, 545], ['radish', 6080, 475], ['lettuce', 6350, 545],
+          ['cabbage', 6600, 545], ['carrot', 6950, 465], ['radish', 7150, 545]
+        ].forEach(([type, x, y]) => veg(type, x, y));
+
+        // The single key — sits on the flat run-up to the portal, unavoidable
+        key(7180, 545);
+
+        enemy(500, 550, 420, 780, 65, 'mushroom_patrol');
+        enemy(1350, 550, 1150, 1600, 75, 'sleep_cloud');
+        enemy(1850, 420, 1750, 2100, 95, 'shadow_bat');
+        enemy(2150, 550, 2000, 2400, 70, 'mushroom_patrol');
+        enemy(3000, 550, 2850, 3250, 78, 'sleep_cloud');
+        enemy(3900, 380, 3700, 4100, 105, 'shadow_bat');
+        enemy(4700, 550, 4550, 5000, 72, 'mushroom_patrol');
+        enemy(6400, 400, 6250, 6700, 110, 'shadow_bat');
+
+        // Pobi cage — the finale rescue prop, just past the key
+        specials.push({ type: 'pobi_cage', x: 7300, y: 430, w: 100, h: 170 });
+
+        for (let x = 180; x < 7500; x += 260 + Math.random() * 120) {
           decor.push({
             type: Math.random() < 0.35 ? 'flower' : Math.random() < 0.55 ? 'mushroom' : 'sprout',
             x, y: 600, s: 0.45 + Math.random() * 0.75, hue: Math.random(), phase: Math.random() * 6
