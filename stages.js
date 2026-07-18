@@ -94,6 +94,7 @@
         enemy(3200, 550, 3080, 3520, 60);
 
         for (let x = 240; x < 4900; x += 320 + Math.random() * 160) {
+          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
           decor.push({
             type: Math.random() < 0.55 ? 'flower' : Math.random() < 0.7 ? 'mushroom' : 'sprout',
             x, y: 600, s: 0.55 + Math.random() * 0.85, hue: Math.random(), phase: Math.random() * 6
@@ -181,7 +182,7 @@
           ['puddle', 1500, 568, 100, 32],
           ['crystal', 2680, 546, 86, 54],
           ['puddle', 2930, 568, 100, 32],
-          ['crystal', 3360, 286, 70, 48],
+          ['crystal', 3260, 382, 70, 48],
           ['puddle', 3720, 568, 110, 32]
         ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
 
@@ -200,6 +201,7 @@
         enemy(4900, 550, 4800, 5300, 78, 'sleep_cloud');
 
         for (let x = 200; x < 5500; x += 280 + Math.random() * 140) {
+          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
           decor.push({
             type: Math.random() < 0.4 ? 'flower' : 'sprout',
             x, y: 600, s: 0.5 + Math.random() * 0.7, hue: Math.random(), phase: Math.random() * 6
@@ -293,17 +295,17 @@
         // Dense hazards: crystals, puddles, thorns (new)
         [
           ['crystal', 500, 546, 82, 54],
-          ['thorn', 720, 562, 90, 38],
+          ['thorn', 380, 562, 90, 38],
           ['puddle', 1120, 568, 100, 32],
           ['thorn', 1320, 562, 95, 38],
-          ['crystal', 1750, 546, 78, 54],
-          ['crystal', 2280, 306, 64, 48],
-          ['thorn', 2550, 562, 100, 38],
+          ['crystal', 1750, 416, 78, 54],
+          ['crystal', 2280, 552, 64, 48],
+          ['thorn', 2810, 562, 100, 38],
           ['puddle', 2920, 568, 110, 32],
           ['thorn', 3180, 562, 92, 38],
-          ['crystal', 3450, 546, 86, 54],
+          ['crystal', 3700, 546, 86, 54],
           ['thorn', 3800, 562, 100, 38],
-          ['thorn', 4350, 562, 95, 38],
+          ['thorn', 4820, 562, 95, 38],
           ['crystal', 4600, 546, 88, 54]
         ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
 
@@ -327,9 +329,10 @@
         enemy(2100, 380, 2000, 2480, 95, 'shadow_bat');
         enemy(2900, 550, 2800, 3200, 78, 'sleep_cloud');
         enemy(3700, 360, 3600, 4100, 100, 'shadow_bat');
-        enemy(4500, 550, 4400, 4850, 80, 'mushroom_patrol');
+        enemy(4500, 550, 4520, 4850, 80, 'mushroom_patrol');
 
         for (let x = 180; x < 6100; x += 240 + Math.random() * 120) {
+          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
           decor.push({
             type: Math.random() < 0.35 ? 'flower' : Math.random() < 0.55 ? 'mushroom' : 'sprout',
             x, y: 600, s: 0.45 + Math.random() * 0.75, hue: Math.random(), phase: Math.random() * 6
@@ -465,6 +468,7 @@
         enemy(6300, 550, 6150, 6500, 80, 'mushroom_patrol');
 
         for (let x = 200; x < 6700; x += 300 + Math.random() * 140) {
+          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
           decor.push({
             type: Math.random() < 0.45 ? 'flower' : Math.random() < 0.65 ? 'mushroom' : 'sprout',
             x, y: 600, s: 0.5 + Math.random() * 0.8, hue: Math.random(), phase: Math.random() * 6
@@ -608,6 +612,7 @@
         specials.push({ type: 'pobi_cage', x: 7300, y: 430, w: 100, h: 170 });
 
         for (let x = 180; x < 7500; x += 260 + Math.random() * 120) {
+          if (!platforms.some((p) => p.kind === 'ground' && x >= p.x && x <= p.x + p.w)) continue;
           decor.push({
             type: Math.random() < 0.35 ? 'flower' : Math.random() < 0.55 ? 'mushroom' : 'sprout',
             x, y: 600, s: 0.45 + Math.random() * 0.75, hue: Math.random(), phase: Math.random() * 6
