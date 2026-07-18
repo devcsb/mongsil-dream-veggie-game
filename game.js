@@ -116,6 +116,7 @@
   const particles = [];
   const decor = [];
   const specials = [];
+  const pits = [];
   const bgIslands = [];
   const bgClouds = [];
   const stars = [];
@@ -181,8 +182,21 @@
 
     state.cameraX = 0;
     state.targetCameraX = 0;
+    computePits();
     buildBackground(stage.worldW);
     updateHUD();
+  }
+
+  // Fall-to-death gaps between ground segments. Rendered as ominous abysses so
+  // players read them as traps, not just lower terrain.
+  function computePits() {
+    pits.length = 0;
+    const grounds = platforms.filter((p) => p.kind === 'ground').sort((a, b) => a.x - b.x);
+    for (let i = 1; i < grounds.length; i++) {
+      const x0 = grounds[i - 1].x + grounds[i - 1].w;
+      const x1 = grounds[i].x;
+      if (x1 - x0 > 40) pits.push({ x0, x1, top: Math.min(grounds[i - 1].y, grounds[i].y) });
+    }
   }
 
   function buildBackground(worldW) {
@@ -1085,6 +1099,72 @@
     context.closePath();
   }
 
+  function drawPits() {
+    for (const pit of pits) {
+      const w = pit.x1 - pit.x0;
+      if (!isVisible(pit.x0, w)) continue;
+      const top = pit.top; // ~600, ground surface line
+
+      // 1. Deep abyss: dark void deepening toward the bottom of the screen.
+      const g = ctx.createLinearGradient(0, top - 6, 0, H);
+      g.addColorStop(0, 'rgba(8,3,16,0)');
+      g.addColorStop(0.16, 'rgba(11,4,22,0.92)');
+      g.addColorStop(1, 'rgba(1,0,4,1)');
+      ctx.fillStyle = g;
+      ctx.fillRect(pit.x0 - 2, top - 6, w + 4, H - top + 80);
+
+      // 2. Broken, jagged rim so the ground looks torn open.
+      ctx.save();
+      ctx.fillStyle = 'rgba(6,2,12,0.96)';
+      const teeth = Math.max(3, Math.floor(w / 26));
+      ctx.beginPath();
+      ctx.moveTo(pit.x0, top - 2);
+      for (let i = 0; i <= teeth; i++) {
+        const tx = pit.x0 + (w * i) / teeth;
+        ctx.lineTo(tx, top + (i % 2 ? 22 : 5));
+      }
+      ctx.lineTo(pit.x1, top - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // 3. Pulsing danger glow on both cliff walls.
+      const pulse = 0.5 + 0.5 * Math.sin(state.time * 4 + pit.x0 * 0.01);
+      ctx.save();
+      ctx.strokeStyle = `rgba(255,86,140,${0.32 + 0.42 * pulse})`;
+      ctx.shadowColor = 'rgba(255,70,130,0.9)';
+      ctx.shadowBlur = 14;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(pit.x0 + 2, top - 4);
+      ctx.lineTo(pit.x0 + 2, top + 48);
+      ctx.moveTo(pit.x1 - 2, top - 4);
+      ctx.lineTo(pit.x1 - 2, top + 48);
+      ctx.stroke();
+      ctx.restore();
+
+      // 4. Menacing spikes rising out of the dark in the visible band.
+      ctx.save();
+      const sN = Math.max(2, Math.floor(w / 62));
+      const baseY = H - 6;
+      for (let i = 0; i < sN; i++) {
+        const sx = pit.x0 + (w * (i + 0.5)) / sN;
+        const peak = 46 + Math.sin(state.time * 2 + i) * 5;
+        const g2 = ctx.createLinearGradient(sx, baseY - peak, sx, baseY);
+        g2.addColorStop(0, 'rgba(255,96,134,0.92)');
+        g2.addColorStop(1, 'rgba(70,10,35,0.15)');
+        ctx.fillStyle = g2;
+        ctx.beginPath();
+        ctx.moveTo(sx - 13, baseY);
+        ctx.lineTo(sx, baseY - peak);
+        ctx.lineTo(sx + 13, baseY);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
   function draw() {
     const palette = currentStage?.palette || StageLib.getStage(0).palette;
     drawBackground(palette);
@@ -1097,6 +1177,7 @@
     ctx.translate(-state.cameraX, 0);
 
     drawBackDecor(palette);
+    drawPits(palette);
     for (const p of platforms) if (!p.gone && isVisible(p.x, p.w)) drawPlatform(p, palette);
     for (const d of decor) if (isVisible(d.x, 100)) drawDecor(d);
     for (const s of specials) if (isVisible(s.x, s.w || 100)) drawSpecial(s);
