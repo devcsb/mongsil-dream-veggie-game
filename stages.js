@@ -77,7 +77,6 @@
         [
           ['crystal', 980, 546, 86, 54],
           ['puddle', 1380, 568, 110, 32],
-          ['crystal', 2100, 546, 88, 54],
           ['puddle', 2520, 568, 108, 32],
           ['crystal', 3180, 546, 90, 54],
           ['puddle', 3550, 568, 100, 32]
@@ -178,8 +177,10 @@
 
         [
           ['crystal', 620, 546, 80, 54],
+          ['crystal', 1050, 430, 76, 50],
           ['puddle', 1500, 568, 100, 32],
           ['crystal', 2680, 546, 86, 54],
+          ['puddle', 2930, 568, 100, 32],
           ['crystal', 3360, 286, 70, 48],
           ['puddle', 3720, 568, 110, 32]
         ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
@@ -296,14 +297,12 @@
           ['puddle', 1120, 568, 100, 32],
           ['thorn', 1320, 562, 95, 38],
           ['crystal', 1750, 546, 78, 54],
-          ['thorn', 2050, 562, 88, 38],
           ['crystal', 2280, 306, 64, 48],
           ['thorn', 2550, 562, 100, 38],
           ['puddle', 2920, 568, 110, 32],
           ['thorn', 3180, 562, 92, 38],
           ['crystal', 3450, 546, 86, 54],
           ['thorn', 3800, 562, 100, 38],
-          ['crystal', 4100, 266, 66, 48],
           ['thorn', 4350, 562, 95, 38],
           ['crystal', 4600, 546, 88, 54]
         ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
@@ -325,9 +324,9 @@
 
         enemy(450, 550, 380, 640, 72, 'mushroom_patrol');
         enemy(1200, 400, 1100, 1500, 95, 'shadow_bat');
-        enemy(2100, 380, 2000, 2480, 100, 'shadow_bat');
+        enemy(2100, 380, 2000, 2480, 95, 'shadow_bat');
         enemy(2900, 550, 2800, 3200, 78, 'sleep_cloud');
-        enemy(3700, 360, 3600, 4100, 110, 'shadow_bat');
+        enemy(3700, 360, 3600, 4100, 100, 'shadow_bat');
         enemy(4500, 550, 4400, 4850, 80, 'mushroom_patrol');
 
         for (let x = 180; x < 6100; x += 240 + Math.random() * 120) {
@@ -457,13 +456,13 @@
           ['carrot', 5880, 395], ['radish', 6250, 545]
         ].forEach(([type, x, y]) => veg(type, x, y));
 
-        enemy(500, 550, 420, 780, 60, 'mushroom_patrol');
-        enemy(1400, 550, 1300, 1650, 70, 'sleep_cloud');
-        enemy(1900, 450, 1800, 2100, 90, 'shadow_bat');
-        enemy(3000, 550, 2900, 3350, 65, 'mushroom_patrol');
-        enemy(3900, 550, 3700, 4100, 75, 'sleep_cloud');
-        enemy(5700, 400, 5600, 5950, 95, 'shadow_bat');
-        enemy(6300, 550, 6150, 6500, 70, 'mushroom_patrol');
+        enemy(500, 550, 420, 780, 78, 'mushroom_patrol');
+        enemy(1400, 550, 1300, 1650, 82, 'sleep_cloud');
+        enemy(1900, 450, 1800, 2100, 102, 'shadow_bat');
+        enemy(3000, 550, 2900, 3350, 82, 'mushroom_patrol');
+        enemy(3900, 550, 3700, 4100, 88, 'sleep_cloud');
+        enemy(5700, 400, 5600, 5950, 105, 'shadow_bat');
+        enemy(6300, 550, 6150, 6500, 80, 'mushroom_patrol');
 
         for (let x = 200; x < 6700; x += 300 + Math.random() * 140) {
           decor.push({
@@ -577,7 +576,9 @@
           ['crystal', 5650, 546, 86, 54],
           ['thorn', 6250, 562, 92, 38],
           ['puddle', 6450, 568, 100, 32],
-          ['crystal', 7100, 546, 84, 54]
+          ['crystal', 6670, 546, 70, 50],
+          ['crystal', 7100, 546, 84, 54],
+          ['puddle', 7500, 568, 100, 32]
         ].forEach(([type, x, y, w, h]) => hazard(type, x, y, w, h));
 
         [
@@ -594,14 +595,14 @@
         // The single key — sits on the flat run-up to the portal, unavoidable
         key(7180, 545);
 
-        enemy(500, 550, 420, 780, 65, 'mushroom_patrol');
-        enemy(1350, 550, 1150, 1600, 75, 'sleep_cloud');
-        enemy(1850, 420, 1750, 2100, 95, 'shadow_bat');
-        enemy(2150, 550, 2000, 2400, 70, 'mushroom_patrol');
-        enemy(3000, 550, 2850, 3250, 78, 'sleep_cloud');
-        enemy(3900, 380, 3700, 4100, 105, 'shadow_bat');
-        enemy(4700, 550, 4550, 5000, 72, 'mushroom_patrol');
-        enemy(6400, 400, 6250, 6700, 110, 'shadow_bat');
+        enemy(500, 550, 420, 780, 88, 'mushroom_patrol');
+        enemy(1350, 550, 1150, 1600, 93, 'sleep_cloud');
+        enemy(1850, 420, 1750, 2100, 110, 'shadow_bat');
+        enemy(2150, 550, 2000, 2400, 90, 'mushroom_patrol');
+        enemy(3000, 550, 2850, 3250, 95, 'sleep_cloud');
+        enemy(3900, 380, 3700, 4100, 113, 'shadow_bat');
+        enemy(4700, 550, 4550, 5000, 92, 'mushroom_patrol');
+        enemy(6400, 400, 6250, 6700, 115, 'shadow_bat');
 
         // Pobi cage — the finale rescue prop, just past the key
         specials.push({ type: 'pobi_cage', x: 7300, y: 430, w: 100, h: 170 });
