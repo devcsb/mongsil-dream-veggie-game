@@ -52,7 +52,7 @@
   const snailImage = new Image();
   snailImage.src = document.querySelector('.hero-snail')?.src || 'assets/snail.png?v=2';
   const pobiImage = new Image();
-  pobiImage.src = 'assets/pobi.png?v=2';
+  pobiImage.src = 'assets/pobi.png?v=3';
 
   const state = {
     mode: 'menu',
